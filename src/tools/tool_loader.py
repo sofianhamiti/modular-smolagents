@@ -19,8 +19,8 @@ from src.tools import (
     ReplaceInFileTool,
     WriteToFileTool,
 )
-from src.tools.code_analysis_tools import ListCodeDefinitionNamesTool
-from src.tools.execute_command_tool import ExecuteCommandTool
+from src.tools.code_tools import ListCodeDefinitionNamesTool
+from src.tools.cli_tools import ExecuteCommandTool
 
 
 def load_tools():
