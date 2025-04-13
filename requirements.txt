@@ -1,0 +1,15 @@
+# Core dependencies
+smolagents[openai]>=1.13.0
+smolagents[gradio]>=1.13.0
+langchain>=0.3.23
+python-dotenv>=1.0.0
+tqdm>=4.0.0
+
+# AWS SDK for Bedrock (can be removed later if not needed for tools)
+boto3>=1.37.15
+botocore>=1.37.15
+
+# Tool specific dependencies
+duckduckgo-search>=4.1.1
+loguru>=0.7.0
+pyyaml>=6.0.0

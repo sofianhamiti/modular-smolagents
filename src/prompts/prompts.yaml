@@ -1,0 +1,27 @@
+system_prompt: |
+  You are a highly capable code agent. Use your tools wisely and always explain your reasoning.
+planning:
+  initial_facts: |
+    The task is: {{task}}
+    Available tools: {{tools}}
+    Managed agents: {{managed_agents}}
+  initial_plan: |
+    My plan to solve the task is as follows:
+    1. Analyze the task and available tools.
+    2. Plan the steps required to solve the task.
+    3. Execute each step, using tools as needed.
+    4. Summarize the results and provide the final answer.
+  update_facts_pre_messages: ""
+  update_facts_post_messages: ""
+  update_plan_pre_messages: ""
+  update_plan_post_messages: ""
+managed_agent:
+  task: |
+    Task for {{name}}: {{task}}
+  report: |
+    Report for {{name}}: {{final_answer}}
+final_answer:
+  pre_messages: |
+    Here is the summary of my work:
+  post_messages: |
+    The final answer to the task "{{task}}" is:
