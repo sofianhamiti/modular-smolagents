@@ -1,6 +1,6 @@
-# Agentic AI Project
+# SmolaAgents Examples
 
-A research assistant system built with [smolagents](https://github.com/huggingface/smolagents) that demonstrates autonomous AI agents working together to solve complex tasks. The system uses a supervisor-worker pattern where specialized agents collaborate to research topics and provide comprehensive answers to user queries.
+A collection of examples and utilities for building AI agents with [smolagents](https://github.com/huggingface/smolagents). This project demonstrates how to create, configure, and deploy autonomous AI agents for various tasks.
 
 ---
 
@@ -9,8 +9,8 @@ A research assistant system built with [smolagents](https://github.com/huggingfa
 ### 1. **Clone the Repository**
 
 ```bash
-git clone https://github.com/yourusername/agentic-ai-project.git
-cd agentic-ai-project
+git clone https://github.com/sofianhamiti/modular-smolagents.git
+cd modular-smolagents
 ```
 
 ### 2. **Set Up a Virtual Environment**
@@ -26,17 +26,13 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 4. **Configure Environment Variables**
+### 4. **Configure the System**
 
-- Copy the example environment file and edit it:
+- Copy the example config file and edit it:
   ```bash
-  cp .env.example .env
+  cp config/config.example.yaml config/config.yaml
   ```
-- Open `.env` and set your LiteLLM API key and any other secrets.
-
-### 5. **Configure the System**
-
-- Edit `config/config.yaml` to set your LiteLLM gateway URL, model, and enabled tools.
+- Edit `config/config.yaml` to set your LLM provider, API key, and other settings.
 - Example LLM config:
   ```yaml
   llm:
@@ -47,61 +43,106 @@ pip install -r requirements.txt
     temperature: 0.7
     max_tokens: 8000
   ```
-- Example tool config:
+- Example Docker config:
   ```yaml
-  tools:
-    enabled:
-      - name: "DateTimeTool"
-      - name: "WebSearchTool"
-      - name: "PromptUserTool"
-      - name: "AnalyzeQueryTool"
-      - name: "RAGTool"
-        params:
-          faiss_index_path: "data/my_faiss_index"
+  docker:
+    image_name: "sandbox-image"
+    dockerfile_path: "."
+    port: 8888
+    agent_script: "examples/cli_agent.py"
+    force_rebuild: false
   ```
 
-### 6. **(Optional) Add a New Tool**
+### 5. **Run the CLI Agent**
 
-- Create a new file in `src/tools/`, e.g., `my_custom_tool.py`.
-- Define your tool class, inheriting from `Tool`, and register it in `src/tools/__init__.py` (or use the registry pattern).
-- Add your tool to the `tools.enabled` list in `config.yaml`.
+```bash
+python examples/cli_agent.py
+```
 
-### 7. **Run the Application**
+### 6. **Run the UI Agent**
+
+```bash
+python examples/ui_agent.py
+```
+
+### 7. **Run in Docker**
 
 ```bash
 python main.py
 ```
 
-- The system will prompt you for a research query.
-- You can provide additional context if needed.
-- The agents will research your query using the enabled tools and present a comprehensive answer.
-- You can ask follow-up questions in the same session.
-
 ---
 
 ## 🧩 Architecture Overview
 
-- **smolagents**: Orchestrates agents and tools.
-- **LiteLLM**: Any LLM endpoint supported by LiteLLM can be used.
-- **Dynamic Tool Registry**: Tools are loaded at runtime based on config.
-- **Supervisor/Researcher Agents**: Supervisor plans and synthesizes, researcher gathers information.
+The project uses a modular, flat architecture for easy maintenance and extension:
+
+- **Centralized Loader System**: All components are accessed through getter functions in `src/loader.py`
+- **Configuration**: Loaded from YAML files with environment variable support
+- **Memory**: Vector-based memory for persistent agent knowledge
+- **Tools**: Extensible tool system for agent capabilities
+- **Sandbox**: Docker-based sandbox for secure agent execution
+- **Prompts**: YAML-based prompt templates for agent behavior
+
+```
+src/
+├── __init__.py      # Exports all loader functions
+├── agents.py        # Agent implementations
+├── config.py        # Configuration loading
+├── loader.py        # Centralized component loader
+├── memory.py        # Memory management
+├── sandbox.py       # Docker sandbox
+├── prompts/         # Prompt templates
+└── tools/           # Tool implementations
+```
 
 ---
 
 ## 🛠️ Adding or Customizing Tools
 
-1. **Create your tool** in `src/tools/` as a class inheriting from `Tool`.
-2. **Register your tool** in the registry in `src/tools/__init__.py`.
-3. **Add your tool** to the `tools.enabled` list in `config/config.yaml`, with any required parameters.
-4. **Restart the app** to use your new tool.
+1. **Create your tool** in `src/tools/` as a class inheriting from the appropriate base tool class.
+2. **Add your tool** to the `get_tools()` function in `src/loader.py`.
+3. **Restart the app** to use your new tool.
+
+Example:
+
+```python
+# In src/tools/my_custom_tool.py
+from smolagents.tools import Tool
+
+class MyCustomTool(Tool):
+    name = "my_custom_tool"
+    description = "Description of what my tool does"
+    
+    def _run(self, param1, param2):
+        # Tool implementation
+        return result
+
+# In src/loader.py (add to get_tools function)
+from src.tools.my_custom_tool import MyCustomTool
+
+def get_tools():
+    # ...existing code...
+    _tools_instance = [
+        # ...existing tools...
+        MyCustomTool(),
+    ]
+    return _tools_instance
+```
 
 ---
 
 ## 🐳 Docker Support
 
+The project includes Docker support for running agents in an isolated environment:
+
 ```bash
-docker build -t agentic-ai-project .
-docker run -it --rm -e LITELLM_API_KEY=your_litellm_api_key agentic-ai-project
+# Run the default agent in Docker
+python main.py
+
+# Or build and run manually
+docker build -t sandbox-image .
+docker run -it --rm -v $(pwd):/app:ro -v $(pwd)/data:/data -p 8888:8888 -w /app sandbox-image python examples/cli_agent.py
 ```
 
 ---
@@ -109,14 +150,12 @@ docker run -it --rm -e LITELLM_API_KEY=your_litellm_api_key agentic-ai-project
 ## 📚 Example Session
 
 ```
-How can I help you today? 
+Type your message (or 'exit' to quit):
 > What are the latest advancements in quantum computing?
 
-Would you like to provide any additional context or clarification? (yes/no)
-> no
+[Agent processes the query using enabled tools]
 
-==== YOUR ANSWER ====
-[Comprehensive, synthesized research answer from the agents]
+Agent result: [Comprehensive answer about quantum computing advancements]
 ```
 
 ---
@@ -130,5 +169,4 @@ MIT License - see LICENSE file for details.
 ## Acknowledgments
 
 - Built with [smolagents](https://github.com/huggingface/smolagents)
-- Uses [LangChain](https://github.com/langchain-ai/langchain) for optional RAG tool
-- Powered by your choice of LLM via LiteLLM
+- Powered by your choice of LLM via LiteLLM or OpenRouter
