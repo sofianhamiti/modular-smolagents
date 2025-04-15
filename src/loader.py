@@ -3,128 +3,151 @@ Centralized loader for all components.
 Provides singleton access to config, LLM, tools, prompts, memory, and sandbox.
 """
 
-# Singleton instances
-_config_instance = None
-_llm_instance = None
-_tools_instance = None
-_prompts_instance = None
-_sandbox_instance = None
+# Import providers
+from src.config import ConfigProvider
+from src.llm import LLMProvider
+from src.tools import ToolsProvider
+from src.prompts.prompt_loader import PromptProvider
+from src.memory import MemoryProvider
+from src.sandbox import SandboxProvider
 
-# Config
-def get_config():
+# Import typing modules
+from typing import Dict, List, Any, Optional
+
+# Define type variables for better type hinting
+ConfigType = Dict[str, Any]  # Adjust if you have a specific Config class
+LLMType = Any  # Replace with actual LLM class type if available
+ToolType = Any  # Replace with actual Tool class type if available
+PromptLoaderType = Any  # Replace with actual PromptLoader type
+MemoryType = Any  # Replace with actual Memory type
+SandboxType = Any  # Replace with actual Sandbox type
+
+class ServiceLoader:
     """
-    Get the singleton config instance.
+    Centralized loader providing singleton access to application components.
+    Uses lazy initialization.
+    """
+    _instance: Optional['ServiceLoader'] = None
     
-    Returns:
-        The loaded configuration dictionary
-    """
-    global _config_instance
-    if _config_instance is None:
-        from src.config import ConfigLoader
-        _config_instance = ConfigLoader().config
-    return _config_instance
-
-def get_llm_config():
-    """Get LLM configuration section"""
-    return get_config().get('llm', {})
-
-def get_docker_config():
-    """Get Docker configuration section"""
-    return get_config().get('docker', {})
-
-# LLM
-def get_llm():
-    """
-    Load the LLM for smolagents from configuration.
-
-    Returns:
-        Configured OpenAIServerModel instance for litellm or openrouter provider.
-    """
-    global _llm_instance
-    if _llm_instance is None:
-        from src.llm import LLMProvider
-        config = get_llm_config()
-        _llm_instance = LLMProvider.create_llm(config)
-    return _llm_instance
-
-# Tools
-def get_tools():
-    """
-    Instantiate and return all available tool classes from smolagents.default_tools and src.tools.
-
-    Returns:
-        List of tool instances.
-    """
-    global _tools_instance
-    if _tools_instance is None:
-        from src.tools import ToolsProvider
-        _tools_instance = ToolsProvider.create_tools()
-    return _tools_instance
-
-# Prompts
-def get_prompts():
-    """
-    Get the prompts loader instance.
+    def __new__(cls) -> 'ServiceLoader':
+        """
+        Ensure only one instance of ServiceLoader exists.
+        
+        Returns:
+            The singleton ServiceLoader instance
+        """
+        if cls._instance is None:
+            cls._instance = super(ServiceLoader, cls).__new__(cls)
+            cls._instance._config: Optional[ConfigType] = None
+            cls._instance._llm: Optional[LLMType] = None
+            cls._instance._tools: Optional[List[ToolType]] = None
+            cls._instance._prompts: Optional[PromptLoaderType] = None
+            cls._instance._memory: Optional[MemoryType] = None
+            cls._instance._sandbox: Optional[SandboxType] = None
+        return cls._instance
     
-    Returns:
-        PromptLoader instance
-    """
-    global _prompts_instance
-    if _prompts_instance is None:
-        from src.prompts.prompt_loader import PromptLoader
-        _prompts_instance = PromptLoader()
-    return _prompts_instance
-
-def get_prompt_templates():
-    """
-    Returns the full prompt_templates dictionary, matching smolagents' expectations.
-    """
-    return get_prompts().get_prompt_templates()
-
-def get_prompt(*keys, default=""):
-    """
-    Retrieve a specific prompt by nested keys, e.g. get_prompt('planning', 'initial_plan').
-    Returns default if not found.
-    """
-    return get_prompts().get_prompt(*keys, default=default)
-
-# Memory
-def get_memory():
-    """
-    Get the memory instance.
+    @property
+    def config(self) -> ConfigType:
+        """
+        Get the singleton config instance.
+        
+        Returns:
+            The loaded configuration dictionary
+            
+        Raises:
+            RuntimeError: If configuration could not be loaded
+        """
+        if self._config is None:
+            config_loader = ConfigProvider.create_config_loader()
+            self._config = ConfigProvider.get_config(config_loader)
+            if self._config is None:
+                raise RuntimeError("Failed to load configuration")
+        return self._config
     
-    Returns:
-        Memory instance
-    """
-    from src.memory import memory
-    return memory
+    @property
+    def llm(self) -> LLMType:
+        """
+        Load the LLM for smolagents from configuration.
 
-def memory_search(query, user_id="default_user", limit=3):
-    """
-    Retrieve relevant memories for a given query and user.
-    Returns a list of memory dicts.
-    """
-    from src.memory import MemoryProvider
-    return MemoryProvider.search(get_memory(), query, user_id, limit)
-
-def memory_add(messages, user_id="default_user"):
-    """
-    Add a list of messages (dicts with 'role' and 'content') to memory for a user.
-    """
-    from src.memory import MemoryProvider
-    return MemoryProvider.add(get_memory(), messages, user_id)
-
-# Sandbox
-def get_sandbox():
-    """
-    Get the Docker sandbox instance.
+        Returns:
+            Configured OpenAIServerModel instance for litellm or openrouter provider.
+            
+        Raises:
+            RuntimeError: If LLM could not be initialized
+        """
+        if self._llm is None:
+            config = self.config.get('llm', {})
+            self._llm = LLMProvider.create_llm(config)
+            if self._llm is None:
+                raise RuntimeError("Failed to initialize LLM")
+        return self._llm
     
-    Returns:
-        DockerSandbox instance
-    """
-    global _sandbox_instance
-    if _sandbox_instance is None:
-        from src.sandbox import SandboxProvider
-        docker_config = get_docker_config()
-        _sandbox_instance = SandboxProvider.create_sandbox(docker_config)
-    return _sandbox_instance
+    @property
+    def tools(self) -> List[ToolType]:
+        """
+        Instantiate and return all available tool classes from smolagents.default_tools and src.tools.
+
+        Returns:
+            List of tool instances.
+        """
+        if self._tools is None:
+            self._tools = ToolsProvider.create_tools()
+            if self._tools is None:
+                # For tools, an empty list might be valid, so we'll initialize it
+                self._tools = []
+        return self._tools
+    
+    @property
+    def prompts(self) -> PromptLoaderType:
+        """
+        Get the prompts loader instance.
+        
+        Returns:
+            PromptLoader instance
+            
+        Raises:
+            RuntimeError: If prompt loader could not be initialized
+        """
+        if self._prompts is None:
+            self._prompts = PromptProvider.create_prompt_loader()
+            if self._prompts is None:
+                raise RuntimeError("Failed to initialize prompt loader")
+        return self._prompts
+    
+    @property
+    def memory(self) -> MemoryType:
+        """
+        Get the memory instance.
+        
+        Returns:
+            Memory instance
+            
+        Raises:
+            RuntimeError: If memory could not be initialized
+        """
+        if self._memory is None:
+            self._memory = MemoryProvider.create_memory()
+            if self._memory is None:
+                raise RuntimeError("Failed to initialize memory")
+        return self._memory
+    
+    @property
+    def sandbox(self) -> SandboxType:
+        """
+        Get the Docker sandbox instance.
+        
+        Returns:
+            DockerSandbox instance
+            
+        Raises:
+            RuntimeError: If sandbox could not be initialized
+        """
+        if self._sandbox is None:
+            docker_config = self.config.get('docker', {})
+            self._sandbox = SandboxProvider.create_sandbox(docker_config)
+            if self._sandbox is None:
+                raise RuntimeError("Failed to initialize Docker sandbox")
+        return self._sandbox
+
+# Create a singleton instance for easy import
+loader = ServiceLoader()

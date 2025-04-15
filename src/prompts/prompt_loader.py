@@ -3,6 +3,26 @@ import yaml
 from typing import Dict, Any, Optional
 
 
+class PromptProvider:
+    """
+    Provider class for prompt functionality.
+    Handles creation and access to prompt loader instances.
+    """
+    
+    @staticmethod
+    def create_prompt_loader(prompts_path: Optional[str] = None):
+        """
+        Create a prompt loader instance.
+        
+        Args:
+            prompts_path: Optional path to the prompts YAML file
+            
+        Returns:
+            PromptLoader instance
+        """
+        return PromptLoader(prompts_path)
+
+
 class PromptLoader:
     """
     Loads prompt templates from a YAML file for use with smolagents.

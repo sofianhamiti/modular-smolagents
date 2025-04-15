@@ -3,6 +3,39 @@ import yaml
 import re
 from typing import Dict, Any
 
+class ConfigProvider:
+    """
+    Provider class for configuration functionality.
+    Handles creation and access to configuration instances.
+    """
+    
+    @staticmethod
+    def create_config_loader(config_path: str = None):
+        """
+        Create a configuration loader instance.
+        
+        Args:
+            config_path: Optional path to the config YAML file
+            
+        Returns:
+            ConfigLoader instance
+        """
+        return ConfigLoader(config_path)
+    
+    @staticmethod
+    def get_config(config_loader):
+        """
+        Get the configuration dictionary from a config loader.
+        
+        Args:
+            config_loader: ConfigLoader instance
+            
+        Returns:
+            Dictionary containing configuration
+        """
+        return config_loader.config
+
+
 def resolve_env_vars(value):
     """
     If value is a string of the form '${ENV_VAR}', replace with the environment variable.

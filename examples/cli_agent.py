@@ -1,16 +1,16 @@
 from smolagents import CodeAgent
-from src import get_llm, get_tools, get_config, get_prompt_templates
+from src import loader
 from smolagents.monitoring import LogLevel
 
 
 def main():
-    model = get_llm()
-    tools = get_tools()
-    config = get_config()
+    model = loader.llm
+    tools = loader.tools
+    config = loader.config
     # use_prompts_yaml = config.get("use_prompts_yaml", False)
     # prompt_templates = None
     # if use_prompts_yaml:
-    #     prompt_templates = get_prompt_templates()
+    #     prompt_templates = loader.prompts
 
     agent = CodeAgent(
         tools=tools,
