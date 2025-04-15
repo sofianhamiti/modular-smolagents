@@ -39,8 +39,8 @@ class ConfigLoader:
             config_path: Path to the config file. Defaults to 'config/config.yaml'
         """
         if config_path is None:
-            # Get the project root directory (assuming this file is in src/core)
-            project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            # Get the project root directory (assuming this file is in src/)
+            project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             config_path = os.path.join(project_root, 'config', 'config.yaml')
         
         self.config_path = config_path

@@ -13,3 +13,13 @@ llm:
 #   model: "claude-3-7-load-balance"
 #   temperature: 0.7
 #   max_tokens: 20000
+
+# Docker sandbox configuration
+docker:
+  image_name: "sandbox-image"
+  port: 7860
+  agent_script: "examples/cli_agent.py"
+  dockerfile_path: "."
+  working_dir: "/app"
+  data_dir: "/data"  # Directory for writable data
+  force_rebuild: false  # Whether to force rebuilding the image
