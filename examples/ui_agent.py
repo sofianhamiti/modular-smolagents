@@ -7,7 +7,12 @@ from src import loader
 def main():
     model = loader.llm
     tools = loader.tools
-    docker_config = loader.config.get('docker', {})
+    config = loader.config
+    use_prompts_yaml = config["agent"]["use_prompts_yaml"]
+    prompt_templates = None
+    if use_prompts_yaml:
+        prompt_templates = loader.prompts
+    docker_config = config["docker"]
 
     agent = CodeAgent(
         tools=tools,
@@ -21,7 +26,7 @@ def main():
 
     gradio_ui = GradioUI(agent)
     gradio_ui.launch(
-        server_name="0.0.0.0", server_port=docker_config.get("port"), share=False
+        server_name="0.0.0.0", server_port=docker_config["port"], share=False
     )
 
 

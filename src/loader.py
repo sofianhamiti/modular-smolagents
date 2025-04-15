@@ -58,7 +58,7 @@ class ServiceLoader:
             RuntimeError: If configuration could not be loaded
         """
         if self._config is None:
-            config_loader = ConfigProvider.create_config_loader()
+            config_loader = ConfigProvider.get_config_loader()
             self._config = ConfigProvider.get_config(config_loader)
             if self._config is None:
                 raise RuntimeError("Failed to load configuration")
@@ -67,7 +67,7 @@ class ServiceLoader:
     @property
     def llm(self) -> LLMType:
         """
-        Load the LLM for smolagents from configuration.
+        Get the LLM instance for smolagents from configuration.
 
         Returns:
             Configured OpenAIServerModel instance for litellm or openrouter provider.
@@ -77,7 +77,7 @@ class ServiceLoader:
         """
         if self._llm is None:
             config = self.config.get('llm', {})
-            self._llm = LLMProvider.create_llm(config)
+            self._llm = LLMProvider.get_llm(config)
             if self._llm is None:
                 raise RuntimeError("Failed to initialize LLM")
         return self._llm
@@ -85,13 +85,13 @@ class ServiceLoader:
     @property
     def tools(self) -> List[ToolType]:
         """
-        Instantiate and return all available tool classes from smolagents.default_tools and src.tools.
+        Get all available tool instances from smolagents.default_tools and src.tools.
 
         Returns:
             List of tool instances.
         """
         if self._tools is None:
-            self._tools = ToolsProvider.create_tools()
+            self._tools = ToolsProvider.get_tools()
             if self._tools is None:
                 # For tools, an empty list might be valid, so we'll initialize it
                 self._tools = []
@@ -100,16 +100,16 @@ class ServiceLoader:
     @property
     def prompts(self) -> PromptLoaderType:
         """
-        Get the prompts loader instance.
+        Get the prompts instance with access to prompt templates.
         
         Returns:
             PromptLoader instance
             
         Raises:
-            RuntimeError: If prompt loader could not be initialized
+            RuntimeError: If prompts could not be initialized
         """
         if self._prompts is None:
-            self._prompts = PromptProvider.create_prompt_loader()
+            self._prompts = PromptProvider.get_prompts()
             if self._prompts is None:
                 raise RuntimeError("Failed to initialize prompt loader")
         return self._prompts
@@ -126,7 +126,7 @@ class ServiceLoader:
             RuntimeError: If memory could not be initialized
         """
         if self._memory is None:
-            self._memory = MemoryProvider.create_memory()
+            self._memory = MemoryProvider.get_memory()
             if self._memory is None:
                 raise RuntimeError("Failed to initialize memory")
         return self._memory
@@ -144,7 +144,7 @@ class ServiceLoader:
         """
         if self._sandbox is None:
             docker_config = self.config.get('docker', {})
-            self._sandbox = SandboxProvider.create_sandbox(docker_config)
+            self._sandbox = SandboxProvider.get_sandbox(docker_config)
             if self._sandbox is None:
                 raise RuntimeError("Failed to initialize Docker sandbox")
         return self._sandbox

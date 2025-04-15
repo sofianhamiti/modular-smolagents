@@ -1,4 +1,9 @@
-use_prompts_yaml: false
+# Agent configuration
+agent:
+  use_prompts_yaml: false
+  planning_interval: 6
+  max_steps: 50
+  additional_authorized_imports: ["*"]
 
 llm:
   provider: "openrouter"

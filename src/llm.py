@@ -6,13 +6,13 @@ Provides the core functionality for interacting with language models.
 class LLMProvider:
     """
     Provider class for language model functionality.
-    Handles creation and configuration of LLM instances.
+    Handles access to LLM instances.
     """
     
     @staticmethod
-    def create_llm(config):
+    def get_llm(config):
         """
-        Create an LLM instance based on the provided configuration.
+        Get an LLM instance based on the provided configuration.
 
         Args:
             config: Dictionary containing LLM configuration parameters

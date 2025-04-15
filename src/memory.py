@@ -7,13 +7,13 @@ from mem0 import Memory
 class MemoryProvider:
     """
     Provider class for memory functionality.
-    Handles creation and access to memory instances.
+    Handles access to memory instances.
     """
     
     @staticmethod
-    def create_memory():
+    def get_memory():
         """
-        Create a memory instance.
+        Get a memory instance.
         
         Returns:
             Memory instance

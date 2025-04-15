@@ -6,13 +6,13 @@ from typing import Dict, Any
 class ConfigProvider:
     """
     Provider class for configuration functionality.
-    Handles creation and access to configuration instances.
+    Handles access to configuration instances.
     """
     
     @staticmethod
-    def create_config_loader(config_path: str = None):
+    def get_config_loader(config_path: str = None):
         """
-        Create a configuration loader instance.
+        Get a configuration loader instance.
         
         Args:
             config_path: Optional path to the config YAML file

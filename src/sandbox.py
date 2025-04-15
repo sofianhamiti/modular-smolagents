@@ -7,13 +7,13 @@ from typing import List, Dict, Optional, Union
 class SandboxProvider:
     """
     Provider class for sandbox functionality.
-    Handles creation and configuration of sandbox instances.
+    Handles access to sandbox instances.
     """
     
     @staticmethod
-    def create_sandbox(config: Dict):
+    def get_sandbox(config: Dict):
         """
-        Create a sandbox instance based on the provided configuration.
+        Get a sandbox instance based on the provided configuration.
         
         Args:
             config: Dictionary containing sandbox configuration parameters

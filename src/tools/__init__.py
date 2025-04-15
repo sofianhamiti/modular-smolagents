@@ -11,27 +11,23 @@ from .file_tools import (
     ReplaceInFileTool,
     WriteToFileTool,
 )
-
-__all__ = [
-    "ReadFileTool",
-    "SearchFilesTool",
-    "ListFilesTool",
-    "ReplaceInFileTool",
-    "WriteToFileTool",
-    "ToolsProvider",
-]
+from .agent_tools import (
+    MemorySearchTool,
+    MemoryAddTool,
+    RunCodeAgentTool,
+)
 
 
 class ToolsProvider:
     """
     Provider class for tools functionality.
-    Handles creation and configuration of tool instances.
+    Handles access and configuration of tool instances.
     """
     
     @staticmethod
-    def create_tools():
+    def get_tools():
         """
-        Create and return all available tool instances.
+        Get all available tool instances.
         
         Returns:
             List of tool instances
@@ -45,6 +41,7 @@ class ToolsProvider:
         )
         from .code_tools import ListCodeDefinitionNamesTool
         from .cli_tools import ExecuteCommandTool
+        # from .agent_tools import MemorySearchTool, MemoryAddTool, RunCodeAgentTool
         
         return [
             PythonInterpreterTool(),
@@ -55,6 +52,11 @@ class ToolsProvider:
             ReadFileTool(),
             SearchFilesTool(),
             ListFilesTool(),
+            ReplaceInFileTool(),
+            WriteToFileTool(),
             ExecuteCommandTool(),
             ListCodeDefinitionNamesTool(),
+            # MemorySearchTool(),
+            # MemoryAddTool(),
+            # RunCodeAgentTool(),
         ]

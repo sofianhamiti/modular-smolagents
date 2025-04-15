@@ -6,13 +6,13 @@ from typing import Dict, Any, Optional
 class PromptProvider:
     """
     Provider class for prompt functionality.
-    Handles creation and access to prompt loader instances.
+    Handles access to prompt templates.
     """
     
     @staticmethod
-    def create_prompt_loader(prompts_path: Optional[str] = None):
+    def get_prompts(prompts_path: Optional[str] = None):
         """
-        Create a prompt loader instance.
+        Get a prompt loader instance.
         
         Args:
             prompts_path: Optional path to the prompts YAML file
