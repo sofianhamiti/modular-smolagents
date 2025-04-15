@@ -42,34 +42,9 @@ def get_llm():
     """
     global _llm_instance
     if _llm_instance is None:
-        from smolagents.models import OpenAIServerModel
+        from src.llm import LLMProvider
         config = get_llm_config()
-        provider = config.get("provider").lower()
-        api_key = config.get("api_key")
-        api_base = config.get("api_base")
-        model = config.get("model")
-        temperature = config.get("temperature", 0.7)
-        max_tokens = config.get("max_tokens", 128000)
-        
-        if not api_key or not model:
-            raise ValueError("Missing required LLM configuration (api_key, model)")
-            
-        if provider in ["litellm", "openrouter"]:
-            if not api_base:
-                raise ValueError(
-                    f"Missing required LLM configuration (api_base) for {provider} provider"
-                )
-            _llm_instance = OpenAIServerModel(
-                model_id=model,
-                api_base=api_base,
-                api_key=api_key,
-                temperature=temperature,
-                max_tokens=max_tokens,
-            )
-        else:
-            raise ValueError(
-                f"Unsupported provider '{provider}'. Only 'litellm' and 'openrouter' are supported."
-            )
+        _llm_instance = LLMProvider.create_llm(config)
     return _llm_instance
 
 # Tools
@@ -82,35 +57,8 @@ def get_tools():
     """
     global _tools_instance
     if _tools_instance is None:
-        from smolagents.default_tools import (
-            PythonInterpreterTool,
-            FinalAnswerTool,
-            UserInputTool,
-            DuckDuckGoSearchTool,
-            VisitWebpageTool,
-        )
-        from src.tools import (
-            ReadFileTool,
-            SearchFilesTool,
-            ListFilesTool,
-            ReplaceInFileTool,
-            WriteToFileTool,
-        )
-        from src.tools.code_tools import ListCodeDefinitionNamesTool
-        from src.tools.cli_tools import ExecuteCommandTool
-        
-        _tools_instance = [
-            PythonInterpreterTool(),
-            FinalAnswerTool(),
-            UserInputTool(),
-            DuckDuckGoSearchTool(),
-            VisitWebpageTool(),
-            ReadFileTool(),
-            SearchFilesTool(),
-            ListFilesTool(),
-            ExecuteCommandTool(),
-            ListCodeDefinitionNamesTool(),
-        ]
+        from src.tools import ToolsProvider
+        _tools_instance = ToolsProvider.create_tools()
     return _tools_instance
 
 # Prompts
@@ -156,15 +104,15 @@ def memory_search(query, user_id="default_user", limit=3):
     Retrieve relevant memories for a given query and user.
     Returns a list of memory dicts.
     """
-    from src.memory import memory_search as _memory_search
-    return _memory_search(query, user_id, limit)
+    from src.memory import MemoryProvider
+    return MemoryProvider.search(get_memory(), query, user_id, limit)
 
 def memory_add(messages, user_id="default_user"):
     """
     Add a list of messages (dicts with 'role' and 'content') to memory for a user.
     """
-    from src.memory import memory_add as _memory_add
-    return _memory_add(messages, user_id)
+    from src.memory import MemoryProvider
+    return MemoryProvider.add(get_memory(), messages, user_id)
 
 # Sandbox
 def get_sandbox():
@@ -176,7 +124,7 @@ def get_sandbox():
     """
     global _sandbox_instance
     if _sandbox_instance is None:
-        from src.sandbox import DockerSandbox
+        from src.sandbox import SandboxProvider
         docker_config = get_docker_config()
-        _sandbox_instance = DockerSandbox(docker_config)
+        _sandbox_instance = SandboxProvider.create_sandbox(docker_config)
     return _sandbox_instance

@@ -18,4 +18,43 @@ __all__ = [
     "ListFilesTool",
     "ReplaceInFileTool",
     "WriteToFileTool",
+    "ToolsProvider",
 ]
+
+
+class ToolsProvider:
+    """
+    Provider class for tools functionality.
+    Handles creation and configuration of tool instances.
+    """
+    
+    @staticmethod
+    def create_tools():
+        """
+        Create and return all available tool instances.
+        
+        Returns:
+            List of tool instances
+        """
+        from smolagents.default_tools import (
+            PythonInterpreterTool,
+            FinalAnswerTool,
+            UserInputTool,
+            DuckDuckGoSearchTool,
+            VisitWebpageTool,
+        )
+        from .code_tools import ListCodeDefinitionNamesTool
+        from .cli_tools import ExecuteCommandTool
+        
+        return [
+            PythonInterpreterTool(),
+            FinalAnswerTool(),
+            UserInputTool(),
+            DuckDuckGoSearchTool(),
+            VisitWebpageTool(),
+            ReadFileTool(),
+            SearchFilesTool(),
+            ListFilesTool(),
+            ExecuteCommandTool(),
+            ListCodeDefinitionNamesTool(),
+        ]

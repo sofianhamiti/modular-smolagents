@@ -6,4 +6,4 @@ if __name__ == "__main__":
     
     # Run the agent in Docker
     print(f"Running agent in Docker container...")
-    sandbox.run_command()  # force_rebuild is now controlled via config
+    sandbox.run_command()

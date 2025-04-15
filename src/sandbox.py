@@ -4,6 +4,26 @@ import pathlib
 from typing import List, Dict, Optional, Union
 
 
+class SandboxProvider:
+    """
+    Provider class for sandbox functionality.
+    Handles creation and configuration of sandbox instances.
+    """
+    
+    @staticmethod
+    def create_sandbox(config: Dict):
+        """
+        Create a sandbox instance based on the provided configuration.
+        
+        Args:
+            config: Dictionary containing sandbox configuration parameters
+            
+        Returns:
+            Configured DockerSandbox instance
+        """
+        return DockerSandbox(config)
+
+
 class DockerSandbox:
     """
     A class to manage running commands in a Docker sandbox environment.
