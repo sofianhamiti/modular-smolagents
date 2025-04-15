@@ -15,12 +15,12 @@ from src.sandbox import SandboxProvider
 from typing import Dict, List, Any, Optional
 
 # Define type variables for better type hinting
-ConfigType = Dict[str, Any]  # Adjust if you have a specific Config class
-LLMType = Any  # Replace with actual LLM class type if available
-ToolType = Any  # Replace with actual Tool class type if available
-PromptLoaderType = Any  # Replace with actual PromptLoader type
-MemoryType = Any  # Replace with actual Memory type
-SandboxType = Any  # Replace with actual Sandbox type
+ConfigType = Dict[str, Any]  
+LLMType = Any  
+ToolType = Any  
+PromptLoaderType = Any  
+MemoryType = Any  
+SandboxType = Any  
 
 class ServiceLoader:
     """
